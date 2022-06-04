@@ -18,4 +18,7 @@ abstract class BaseEntity {
     @LastModifiedDate
     @Column(name = "MODIFIED_AT")
     var modifiedAt: LocalDateTime = LocalDateTime.now()
+
+    @Column(name = "IS_DELETE")
+    var isDelete: Boolean = false
 }
