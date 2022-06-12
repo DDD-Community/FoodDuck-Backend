@@ -14,6 +14,7 @@ plugins {
 	kotlin("plugin.jpa") version "1.6.21"
 	kotlin("plugin.allopen") version kotlinVersion
 	kotlin("plugin.noarg") version kotlinVersion
+	kotlin("kapt") version kotlinVersion
 }
 
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
@@ -76,6 +77,10 @@ dependencies {
 	testImplementation("com.h2database:h2:1.4.199")
 
 	runtimeOnly("org.postgresql:postgresql")
+
+	val querydslVersion = "4.4.0"
+	implementation("com.querydsl:querydsl-jpa:$querydslVersion")
+	kapt("com.querydsl:querydsl-apt:$querydslVersion:jpa")
 
 }
 

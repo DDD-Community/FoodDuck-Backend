@@ -4,14 +4,14 @@ import com.foodduck.foodduck.base.domain.BaseEntity
 import javax.persistence.*
 
 @Entity
-class Favor(
+class Tag(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "FAVOR_ID")
-    val id: Long? = null,
+    @Column(name = "TAG_ID")
+    val id:Long? = null,
 
-    @Column(name = "COUNT")
-    val count: Long
-    ):BaseEntity() {
+    @Column(name = "TITLE")
+    val title:String
+):BaseEntity() {
 
 }
