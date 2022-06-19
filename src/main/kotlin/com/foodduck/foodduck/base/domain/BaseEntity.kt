@@ -20,5 +20,5 @@ abstract class BaseEntity {
     var modifiedAt: LocalDateTime = LocalDateTime.now()
 
     @Column(name = "IS_DELETE")
-    var isDelete: Boolean = false
+    var delete: Boolean = false
 }

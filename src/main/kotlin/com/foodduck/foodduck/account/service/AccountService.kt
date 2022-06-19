@@ -57,7 +57,7 @@ class AccountService(
     }
 
     fun signOut(account: Account) {
-        account.isDelete = true
+        account.delete = true
     }
 
     private fun validateSignUp(request: AccountSignUpRequest) {
