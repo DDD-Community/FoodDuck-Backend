@@ -6,7 +6,7 @@ import javax.persistence.*
 @Entity
 class Tag(
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TAG_ID")
     val id:Long? = null,
 

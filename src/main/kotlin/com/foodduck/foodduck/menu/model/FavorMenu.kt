@@ -7,7 +7,7 @@ import javax.persistence.*
 @Entity
 class FavorMenu(
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "FAVOR_MENU_ID")
     val id:Long? = null,
 

@@ -17,5 +17,6 @@ enum class ErrorCode(
     EMAIL_FORMAT_ERROR(HttpStatus.BAD_REQUEST, "A008", "이메일 형식이 아닙니다."),
     ALREADY_EXISTS_EMAIL_ERROR(HttpStatus.BAD_REQUEST, "A009", "이미 존재하고 있는 이메일입니다."),
     PASSWORD_FORMAT_ERROR(HttpStatus.BAD_REQUEST, "A010", "비밀번호 형식이 아닙니다."),
-    WRONG_PASSWORD_ERROR(HttpStatus.BAD_REQUEST, "A011", "잘못된 비밀번호 입니다.")
+    WRONG_PASSWORD_ERROR(HttpStatus.BAD_REQUEST, "A011", "잘못된 비밀번호 입니다."),
+    MENU_NOT_FOUND_ERROR(HttpStatus.BAD_REQUEST, "B001", "존재하지 않는 메뉴 입니다."),
 }

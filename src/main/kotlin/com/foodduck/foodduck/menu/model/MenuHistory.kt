@@ -7,7 +7,7 @@ import javax.persistence.*
 @Entity
 class MenuHistory(
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MENU_HISTORY_ID")
     val id:Long? = null,
 
