@@ -7,7 +7,7 @@ import javax.persistence.*
 @Entity
 class Account(
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ACCOUNT_ID")
     val id: Long? = null,
 
