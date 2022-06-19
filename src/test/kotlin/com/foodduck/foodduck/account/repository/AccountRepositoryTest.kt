@@ -1,6 +1,7 @@
 package com.foodduck.foodduck.account.repository
 
 import com.foodduck.foodduck.account.model.Account
+import com.foodduck.foodduck.base.config.TestConfig
 import com.foodduck.foodduck.base.config.domain.EntityFactory
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -10,10 +11,12 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.context.annotation.Import
 import org.springframework.transaction.annotation.Transactional
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(TestConfig::class)
 @Transactional
 class AccountRepositoryTest {
     @Autowired
