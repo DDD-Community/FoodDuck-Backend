@@ -15,7 +15,6 @@ class CustomAuthenticationEntryPoint:AuthenticationEntryPoint {
         response: HttpServletResponse?,
         authException: AuthenticationException?
     ) {
-        val exception: String = request?.getAttribute("exception") as String
         setResponse(response)
         response?.sendError(HttpServletResponse.SC_UNAUTHORIZED)
     }
