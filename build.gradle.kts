@@ -78,7 +78,7 @@ dependencies {
 
 	runtimeOnly("org.postgresql:postgresql")
 
-	val querydslVersion = "4.4.0"
+	val querydslVersion = "5.0.0"
 	implementation("com.querydsl:querydsl-jpa:$querydslVersion")
 	kapt("com.querydsl:querydsl-apt:$querydslVersion:jpa")
 
@@ -87,7 +87,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "11"
+		jvmTarget = "17"
 	}
 }
 
