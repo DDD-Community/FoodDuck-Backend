@@ -20,7 +20,12 @@ class WebSecurityConfig(
     fun configure(http: HttpSecurity?): SecurityFilterChain? {
         return http?.csrf()?.disable()?.exceptionHandling()?.authenticationEntryPoint(customAuthenticationEntryPoint)?.and()
             ?.sessionManagement()?.sessionCreationPolicy(SessionCreationPolicy.STATELESS)?.and()?.authorizeRequests()
-            ?.anyRequest()?.permitAll()?.and()
+            ?.antMatchers(
+                "/api/v1/accounts/**",
+                "/api/v1/tag-menus/**",
+                "/api/v1/menus/{\\d+}"
+            )?.permitAll()
+            ?.anyRequest()?.authenticated()?.and()
             ?.addFilterBefore(JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter::class.java)
             ?.build()
     }
