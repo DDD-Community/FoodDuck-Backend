@@ -1,11 +1,16 @@
 package com.foodduck.foodduck.menu.service
 
 import com.foodduck.foodduck.account.model.Account
+import com.foodduck.foodduck.base.config.S3Uploader
 import com.foodduck.foodduck.base.error.CustomException
 import com.foodduck.foodduck.base.error.ErrorCode
+import com.foodduck.foodduck.base.message.DEFAULT_TAG
+import com.foodduck.foodduck.base.message.MENU_DIR_NAME
 import com.foodduck.foodduck.base.message.MessageCode
-import com.foodduck.foodduck.menu.dto.MenuCreateRequestDto
-import com.foodduck.foodduck.menu.dto.MenuCreateResponseDto
+import com.foodduck.foodduck.menu.dto.MenuBasicRequestDto
+import com.foodduck.foodduck.menu.dto.MenuBasicResponseDto
+import com.foodduck.foodduck.menu.dto.MenuIdsDto
+import com.foodduck.foodduck.menu.dto.MenuModifyRequestDto
 import com.foodduck.foodduck.menu.model.*
 import com.foodduck.foodduck.menu.repository.*
 import com.foodduck.foodduck.menu.vo.DetailMenuVIewVo
@@ -23,18 +28,20 @@ class MenuService(
     private val tagMenuRepository: TagMenuRepository,
     private val favorMenuRepository: FavorMenuRepository,
     private val menuHistoryRepository: MenuHistoryRepository,
+    private val s3Uploader: S3Uploader
 ) {
 
     @Transactional
-    fun postMenu(account: Account, request: MenuCreateRequestDto): MenuCreateResponseDto {
-        // image s3 upload and get url
-        val rawTags = request.tags.plus("INIT_ALL")
+    fun postMenu(account: Account, request: MenuBasicRequestDto): MenuBasicResponseDto {
+        val rawTags = request.tags.plus(DEFAULT_TAG)
         generateTag(rawTags)
-        val rawMenu = request.toMenu(account)
+        val image = request.image
+        val url = s3Uploader.upload(image, MENU_DIR_NAME)
+        val rawMenu = request.toMenu(account, url)
         val menu = menuRepository.save(rawMenu)
         val tags = getTags(rawTags)
         tags?.forEach { tag -> tagMenuRepository.save(TagMenu(tag = tag, menu = menu)) }
-        return MenuCreateResponseDto(menu.id)
+        return MenuBasicResponseDto(menu.id)
     }
 
     private fun getTags(tags: List<String>): List<Tag>? {
