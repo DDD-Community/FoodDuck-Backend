@@ -27,7 +27,7 @@ class TagMenuViewRepositoryImpl(
             .join(tagMenu.menu, menu)
             .join(tagMenu.tag, tag)
             .join(tagMenu.menu.account, account)
-            .where(menuDeleteIsFalse(), tagEq(tagName), ltLastMenuId(lastId))
+            .where(tagMenuDeleteIsFalse(), menuDeleteIsFalse(), tagEq(tagName), ltLastMenuId(lastId))
             .limit(pageSize)
 
         val resQuery = orderByQuery(query, orderBy)
@@ -43,7 +43,7 @@ class TagMenuViewRepositoryImpl(
                 tagMenu.menu.account.nickname
             )
         ).from(tagMenu)
-            .where(menuDeleteIsFalse(), tagMenu.menu.id.eq(menuId))
+            .where(tagMenuDeleteIsFalse(), menuDeleteIsFalse(), tagMenu.menu.id.eq(menuId))
             .distinct()
             .fetchOne()
     }
@@ -51,12 +51,16 @@ class TagMenuViewRepositoryImpl(
     override fun findTagsByMenu(menuId: Long): List<String> {
         return query.select(tagMenu.tag.title)
             .from(tagMenu)
-            .where(menuDeleteIsFalse(), tagMenu.menu.id.eq(menuId))
+            .where(tagMenuDeleteIsFalse(), menuDeleteIsFalse(), tagMenu.menu.id.eq(menuId))
             .fetch()
     }
 
     private fun menuDeleteIsFalse(): BooleanExpression? {
         return tagMenu.menu.delete.isFalse
+    }
+
+    private fun tagMenuDeleteIsFalse(): BooleanExpression? {
+        return tagMenu.delete.isFalse
     }
 
     private fun tagEq(tagName: String): BooleanExpression? {

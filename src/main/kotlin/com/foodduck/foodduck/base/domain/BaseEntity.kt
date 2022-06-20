@@ -21,4 +21,8 @@ abstract class BaseEntity {
 
     @Column(name = "IS_DELETE")
     var delete: Boolean = false
+
+    fun remove() {
+        this.delete = true
+    }
 }

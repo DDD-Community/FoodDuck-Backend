@@ -48,7 +48,7 @@ class MenuService(
     @Transactional
     fun clickFavor(account: Account, menuId: Long): String {
         val menu: Menu = (menuRepository.findByIdAndDeleteIsFalse(menuId) ?: CustomException(ErrorCode.MENU_NOT_FOUND_ERROR)) as Menu
-        val favorMenu = favorMenuRepository.findByAccountAndMenu(account, menu)
+        val favorMenu = favorMenuRepository.findByAccountAndMenuAndDeleteIsFalse(account, menu)
         return if (favorMenu == null) {
             menu.changeFavorCount(1L)
             favorMenuRepository.save(FavorMenu(account = account, menu = menu))
@@ -69,7 +69,7 @@ class MenuService(
     private fun recordMenuHistory(account: Account?, menuId: Long) {
         if (account != null) {
             val menu = menuRepository.findByIdAndDeleteIsFalse(menuId) ?: throw CustomException(ErrorCode.MENU_NOT_FOUND_ERROR)
-            menuHistoryRepository.findByAccountAndMenu(account, menu) ?: menuHistoryRepository.save(MenuHistory(menu = menu, account = account))
+            menuHistoryRepository.findByAccountAndMenuAndDeleteIsFalse(account, menu) ?: menuHistoryRepository.save(MenuHistory(menu = menu, account = account))
         }
     }
 

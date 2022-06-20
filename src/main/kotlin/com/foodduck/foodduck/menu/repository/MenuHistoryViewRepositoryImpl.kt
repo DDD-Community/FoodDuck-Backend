@@ -18,7 +18,7 @@ class MenuHistoryViewRepositoryImpl(
                 Projections.constructor(FindMenuHistoryListVo::class.java, menuHistory.menu.id, menuHistory.menu.url)
             ).from(menuHistory)
             .join(menuHistory.menu, QMenu.menu)
-            .where(menuHistory.menu.delete.isFalse, accountEq(account), ltLastMenuId(menuId))
+            .where(menuHistory.delete.isFalse, menuHistory.menu.delete.isFalse, accountEq(account), ltLastMenuId(menuId))
             .limit(pageSize)
             .orderBy(menuHistory.id.desc())
             .fetch()

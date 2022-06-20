@@ -5,4 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface MenuRepository:JpaRepository<Menu, Long> {
     fun findByIdAndDeleteIsFalse(menuId:Long): Menu?
+
+    @Query("select m from Menu m join fetch m.tagMenu where m.id = :menuId and m.account = :account")
+    fun findByIdAndDeleteIsFalseAndAccount(@Param("menuId") menuId:Long, @Param("account") account: Account): Menu?
 }

@@ -22,7 +22,7 @@ class FavorMenuViewRepositoryImpl(
             ).from(favorMenu)
             .join(favorMenu.menu, menu)
             .join(favorMenu.account, QAccount.account)
-            .where(favorMenu.menu.delete.isFalse, ltLastMenuId(lastId))
+            .where(favorMenu.delete.isFalse, favorMenu.menu.delete.isFalse, ltLastMenuId(lastId))
             .limit(pageSize)
             .orderBy(favorMenu.id.desc())
             .fetch()
