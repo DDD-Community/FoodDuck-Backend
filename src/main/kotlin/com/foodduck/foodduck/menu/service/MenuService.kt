@@ -15,7 +15,7 @@ import com.foodduck.foodduck.menu.model.*
 import com.foodduck.foodduck.menu.repository.*
 import com.foodduck.foodduck.menu.vo.DetailMenuVIewVo
 import com.foodduck.foodduck.menu.vo.FindFavorMenuListVo
-import com.foodduck.foodduck.menu.vo.FindMenuHistoryListVo
+import com.foodduck.foodduck.menu.vo.MenuAlbumListVo
 import com.foodduck.foodduck.menu.vo.FindMenuListVo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -84,7 +84,7 @@ class MenuService(
         return tagMenuRepository.findListMenu(tagName = tagName, lastId = menuId, orderBy = orderBy, pageSize = pageSize)
     }
 
-    fun historyMenu(account: Account, menuId:Long?, pageSize: Long): List<FindMenuHistoryListVo> {
+    fun historyMenu(account: Account, menuId:Long?, pageSize: Long): List<MenuAlbumListVo> {
         return menuHistoryRepository.findMyMenuHistoryList(account, menuId, pageSize)
     }
 
@@ -92,4 +92,57 @@ class MenuService(
         return favorMenuRepository.findFavorMenuList(account, menuId, pageSize)
     }
 
+    fun myMenu(account: Account, menuId: Long?, pageSize: Long): List<MenuAlbumListVo> {
+        return menuRepository.findMyMenuList(account, menuId, pageSize)
+    }
+
+    @Transactional
+    fun modifyMenu(account: Account, menuId: Long, request: MenuModifyRequestDto): MenuBasicResponseDto {
+        val menu = menuRepository.findByIdAndDeleteIsFalse(menuId) ?: CustomException(ErrorCode.MENU_NOT_FOUND_ERROR)
+        val tagMenuList = tagMenuRepository.findByMenuAndDeleteIsFalse(menu as Menu)
+
+        val requestTags = request.tags.plus(DEFAULT_TAG)
+        val existsTags = tagMenuList.map { tagMenu -> tagMenu.tag.title }.plus(DEFAULT_TAG)
+        val deleteTags = existsTags.subtract(requestTags).toList()
+
+        deleteTagMenu(deleteTags, tagMenuList)
+        makeTagAndTagMenu(requestTags, existsTags, menu)
+
+        val image = request.image
+        val url = s3Uploader.upload(image, MENU_DIR_NAME)
+        menu.updateMenu(request.title, request.body, url)
+        return MenuBasicResponseDto(menu.id)
+    }
+
+    private fun deleteTagMenu(deleteTags: List<String>?, tagMenuList: List<TagMenu>) {
+        if (deleteTags != null) {
+            tagMenuList.filter { deleteTags.contains(it.tag.title) }.forEach { tagMenu -> tagMenuRepository.delete(tagMenu) }
+        }
+    }
+
+    private fun makeTagAndTagMenu(requestTags: Set<String>, existsTags: List<String>, menu: Menu) {
+        val tags = requestTags.filter { !existsTags.contains(it) }.toList()
+        for (title in tags) {
+            val tag = tagRepository.findByTitle(title) ?: tagRepository.save(Tag(title=title))
+            tagMenuRepository.save(TagMenu(menu = menu, tag = tag))
+        }
+    }
+
+    @Transactional
+    fun deleteMyMenuHistory(account: Account, request: MenuIdsDto) {
+        val menuHistories = menuHistoryRepository.findByAccountAndMenu_IdInAndDeleteIsFalse(account, request.menuIds) ?: throw CustomException(ErrorCode.MENU_HISTORY_NOT_FOUND_ERROR)
+        if (request.menuIds.size != menuHistories.size) {
+            throw CustomException(ErrorCode.MENU_HISTORY_NOT_FOUND_ERROR)
+        }
+        menuHistories.forEach{ it.remove() }
+    }
+
+    @Transactional
+    fun deleteMyMenu(account: Account, menuId: Long) {
+        val menu = menuRepository.findByIdAndDeleteIsFalseAndAccount(menuId, account) ?: throw CustomException(ErrorCode.MENU_NOT_FOUND_ERROR)
+        tagMenuRepository.bulkDeleteTrue(menu)
+        menuHistoryRepository.bulkDeleteTrue(menu)
+        favorMenuRepository.bulkDeleteTrue(menu)
+        menu.remove()
+    }
 }

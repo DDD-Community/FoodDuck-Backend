@@ -32,4 +32,10 @@ class Menu(
     fun changeFavorCount(count: Long) {
         this.favorCount += count
     }
+
+    fun updateMenu(title: String, body: String, image: String) {
+        this.title = title
+        this.body = body
+        this.url = image
+    }
 }

@@ -5,5 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface TagRepository:JpaRepository<Tag, Long> {
     fun existsByTitle(title:String):Boolean
+    fun findByTitle(title: String): Tag?
     fun findByTitleIn(titles:List<String>): List<Tag>?
 }

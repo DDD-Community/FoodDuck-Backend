@@ -1,5 +1,5 @@
 package com.foodduck.foodduck.menu.dto
 
-data class MenuCreateResponseDto(
+data class MenuBasicResponseDto(
     val menuId: Long?
 )
