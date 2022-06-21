@@ -5,10 +5,6 @@ plugins {
 	id("org.springframework.boot") version "2.7.0"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 
-	// klint
-	id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
-	id("org.jlleitschuh.gradle.ktlint-idea") version "10.0.0"
-
 	kotlin("jvm") version "1.6.21"
 	kotlin("plugin.spring") version "1.6.21"
 	kotlin("plugin.jpa") version "1.6.21"
@@ -17,13 +13,9 @@ plugins {
 	kotlin("kapt") version kotlinVersion
 }
 
-configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-	ignoreFailures.set(true)
-}
-
 group = "com.foodduck"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 configurations {
 	compileOnly {
@@ -76,6 +68,7 @@ dependencies {
 	runtimeOnly("com.h2database:h2")
 	testImplementation("com.h2database:h2:1.4.199")
 
+	implementation("org.postgresql:postgresql:42.4.0")
 	runtimeOnly("org.postgresql:postgresql")
 
 	val querydslVersion = "5.0.0"
@@ -88,7 +81,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "17"
+		jvmTarget = "11"
 	}
 }
 

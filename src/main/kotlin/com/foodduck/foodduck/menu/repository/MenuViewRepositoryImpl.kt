@@ -1,3 +1,4 @@
+
 package com.foodduck.foodduck.menu.repository
 
 import com.foodduck.foodduck.account.model.Account
@@ -9,7 +10,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 
 class MenuViewRepositoryImpl(
     private val query: JPAQueryFactory
-):MenuViewRepository {
+): MenuViewRepository {
 
     override fun findMyMenuList(account: Account, menuId: Long?, pageSize: Long): List<MenuAlbumListVo> {
         return query
@@ -19,7 +20,6 @@ class MenuViewRepositoryImpl(
             .limit(pageSize)
             .orderBy(menu.id.desc())
             .fetch()
-
     }
 
     private fun ltMenuId(menuId: Long?): BooleanExpression? {

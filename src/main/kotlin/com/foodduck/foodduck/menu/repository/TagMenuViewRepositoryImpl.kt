@@ -36,7 +36,8 @@ class TagMenuViewRepositoryImpl(
 
     override fun detailMenuView(menuId: Long): DetailMenuVIewVo? {
         return query.select(
-            Projections.constructor(DetailMenuVIewVo::class.java,
+            Projections.constructor(
+                DetailMenuVIewVo::class.java,
                 tagMenu.menu.id, tagMenu.menu.title,
                 tagMenu.menu.body, tagMenu.menu.url,
                 tagMenu.menu.favorCount,

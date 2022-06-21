@@ -1,3 +1,4 @@
+
 package com.foodduck.foodduck.menu.model
 
 import com.foodduck.foodduck.account.model.Account
@@ -9,7 +10,7 @@ class MenuHistory(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MENU_HISTORY_ID")
-    val id:Long? = null,
+    val id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACCOUNT_ID")
@@ -18,6 +19,4 @@ class MenuHistory(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MENU_ID")
     val menu: Menu
-):BaseEntity() {
-
-}
+):BaseEntity()

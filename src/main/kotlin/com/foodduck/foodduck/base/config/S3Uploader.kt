@@ -16,7 +16,9 @@ import java.util.*
 class S3Uploader(
     private val amazonS3Client: AmazonS3Client,
     @Value("\${cloud.aws.s3.bucket}")
-    val bucket: String
+    val bucket: String,
+    @Value("\${spring.config.activate.on-profile}")
+    val profile: String
 ) {
     fun upload(multipartFile: MultipartFile, dirName: String): String {
         val uploadFile: File = convert(multipartFile)
@@ -28,7 +30,7 @@ class S3Uploader(
     }
 
     private fun upload(uploadFile: File, dirName: String): String {
-        val fileName: String = dirName + "/" +  UUID.randomUUID()
+        val fileName: String = dirName + "/" + profile + "/" + UUID.randomUUID()
         return putS3(uploadFile, fileName)
     }
 

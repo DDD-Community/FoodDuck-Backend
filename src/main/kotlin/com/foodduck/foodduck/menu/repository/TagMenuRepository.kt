@@ -12,5 +12,5 @@ interface TagMenuRepository:JpaRepository<TagMenu, Long>, TagMenuViewRepository 
 
     @Modifying
     @Query("update TagMenu tm set tm.delete = true where tm.menu = :menu")
-    fun bulkDeleteTrue(@Param("menu") menu:Menu): Int
+    fun bulkDeleteTrue(@Param("menu") menu: Menu): Int
 }

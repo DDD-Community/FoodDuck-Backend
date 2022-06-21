@@ -1,3 +1,4 @@
+
 package com.foodduck.foodduck.menu.model
 
 import com.foodduck.foodduck.account.model.Account
@@ -28,7 +29,7 @@ class Menu(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACCOUNT_ID")
     val account: Account
-):BaseEntity() {
+): BaseEntity() {
     fun changeFavorCount(count: Long) {
         this.favorCount += count
     }

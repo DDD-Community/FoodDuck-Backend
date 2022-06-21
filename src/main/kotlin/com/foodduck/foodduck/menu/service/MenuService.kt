@@ -1,3 +1,4 @@
+
 package com.foodduck.foodduck.menu.service
 
 import com.foodduck.foodduck.account.model.Account
@@ -49,7 +50,7 @@ class MenuService(
     }
 
     private fun generateTag(tags: List<String>) {
-        tags.filter { !tagRepository.existsByTitle(it) }.forEach{ tagRepository.save(Tag(title=it)) }
+        tags.filter { !tagRepository.existsByTitle(it) }.forEach { tagRepository.save(Tag(title=it)) }
     }
 
     @Transactional
@@ -70,7 +71,7 @@ class MenuService(
     @Transactional
     fun detailMenu(account: Account?, menuId: Long): DetailMenuVIewVo {
         recordMenuHistory(account, menuId)
-        return tagMenuRepository.detailMenuView(menuId)?:throw CustomException(ErrorCode.MENU_NOT_FOUND_ERROR)
+        return tagMenuRepository.detailMenuView(menuId) ?:throw CustomException(ErrorCode.MENU_NOT_FOUND_ERROR)
     }
 
     private fun recordMenuHistory(account: Account?, menuId: Long) {
@@ -80,15 +81,15 @@ class MenuService(
         }
     }
 
-    fun listMenu(tagName: String, menuId:Long?, orderBy:String, pageSize: Long): List<FindMenuListVo> {
+    fun listMenu(tagName: String, menuId: Long?, orderBy: String, pageSize: Long): List<FindMenuListVo> {
         return tagMenuRepository.findListMenu(tagName = tagName, lastId = menuId, orderBy = orderBy, pageSize = pageSize)
     }
 
-    fun historyMenu(account: Account, menuId:Long?, pageSize: Long): List<MenuAlbumListVo> {
+    fun historyMenu(account: Account, menuId: Long?, pageSize: Long): List<MenuAlbumListVo> {
         return menuHistoryRepository.findMyMenuHistoryList(account, menuId, pageSize)
     }
 
-    fun myFavorMenu(account: Account, menuId:Long?, pageSize: Long): List<FindFavorMenuListVo> {
+    fun myFavorMenu(account: Account, menuId: Long?, pageSize: Long): List<FindFavorMenuListVo> {
         return favorMenuRepository.findFavorMenuList(account, menuId, pageSize)
     }
 
@@ -123,7 +124,7 @@ class MenuService(
     private fun makeTagAndTagMenu(requestTags: Set<String>, existsTags: List<String>, menu: Menu) {
         val tags = requestTags.filter { !existsTags.contains(it) }.toList()
         for (title in tags) {
-            val tag = tagRepository.findByTitle(title) ?: tagRepository.save(Tag(title=title))
+            val tag = tagRepository.findByTitle(title) ?: tagRepository.save(Tag(title = title))
             tagMenuRepository.save(TagMenu(menu = menu, tag = tag))
         }
     }
@@ -134,7 +135,7 @@ class MenuService(
         if (request.menuIds.size != menuHistories.size) {
             throw CustomException(ErrorCode.MENU_HISTORY_NOT_FOUND_ERROR)
         }
-        menuHistories.forEach{ it.remove() }
+        menuHistories.forEach { it.remove() }
     }
 
     @Transactional

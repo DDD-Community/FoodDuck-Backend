@@ -1,3 +1,4 @@
+
 package com.foodduck.foodduck.menu.model
 
 import com.foodduck.foodduck.base.domain.BaseEntity
@@ -8,15 +9,13 @@ class TagMenu(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TAG_MENU_ID")
-    val id:Long? = null,
+    val id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="TAG_ID")
-    val tag:Tag,
+    val tag: Tag,
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "MENU_ID")
-    val menu:Menu
-):BaseEntity() {
-
-}
+    val menu: Menu
+): BaseEntity()

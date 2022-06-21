@@ -1,3 +1,4 @@
+
 package com.foodduck.foodduck.menu.repository
 
 import com.foodduck.foodduck.account.model.Account
@@ -12,11 +13,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 
 class FavorMenuViewRepositoryImpl(
     private val query: JPAQueryFactory
-):FavorMenuViewRepository {
-    override fun findFavorMenuList(account: Account, lastId: Long?, pageSize:Long): List<FindFavorMenuListVo> {
+): FavorMenuViewRepository {
+    override fun findFavorMenuList(account: Account, lastId: Long?, pageSize: Long): List<FindFavorMenuListVo> {
         return query
             .select(
-                Projections.constructor(FindFavorMenuListVo::class.java,
+                Projections.constructor(
+                    FindFavorMenuListVo::class.java,
                     favorMenu.menu.id, favorMenu.account.nickname, favorMenu.menu.url, favorMenu.menu.title, favorMenu.menu.body, favorMenu.menu.favorCount
                 )
             ).from(favorMenu)

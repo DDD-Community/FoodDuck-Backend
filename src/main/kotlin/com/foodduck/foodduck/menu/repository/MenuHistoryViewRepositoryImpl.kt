@@ -1,3 +1,4 @@
+
 package com.foodduck.foodduck.menu.repository
 
 import com.foodduck.foodduck.account.model.Account
@@ -10,9 +11,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 
 class MenuHistoryViewRepositoryImpl(
     private val query: JPAQueryFactory
-):MenuHistoryViewRepository {
+): MenuHistoryViewRepository {
 
-    override fun findMyMenuHistoryList(account: Account, menuId: Long?, pageSize:Long): List<MenuAlbumListVo> {
+    override fun findMyMenuHistoryList(account: Account, menuId: Long?, pageSize: Long): List<MenuAlbumListVo> {
         return query
             .select(
                 Projections.constructor(MenuAlbumListVo::class.java, menuHistory.menu.id, menuHistory.menu.url)
