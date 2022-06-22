@@ -5,6 +5,8 @@ import com.foodduck.foodduck.base.message.response.SimpleResponse
 import com.foodduck.foodduck.menu.service.MenuService
 import com.foodduck.foodduck.menu.vo.FindMenuListVo
 import io.swagger.annotations.Api
+import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,12 +21,13 @@ class TagMenuController(
     private val menuService: MenuService
 ) {
 
+    @ApiOperation(value = "태그 메뉴 리스트")
     @GetMapping
     fun listMenu(
-        @RequestParam(name = "tag-name") tagName: String,
-        @RequestParam(name = "last-id", required = false) menuId: Long?,
-        @RequestParam(name = "order-by") orderBy: String,
-        @RequestParam(name = "page-size") pageSize: Long
+        @RequestParam(name = "tag-name") @ApiParam(value = "태그 이름 (전체는 INIT_ALL)", required = true) tagName: String,
+        @RequestParam(name = "last-id", required = false) @ApiParam(value = "메뉴 마지막 아이디", required = false) menuId: Long?,
+        @RequestParam(name = "order-by") @ApiParam(value = "정렬 [id, -id, favorCount, -favorCount] 가 존재하며 '-'는 내림차순", required = true) orderBy: String,
+        @RequestParam(name = "page-size") @ApiParam(value = "데이터 갯수", required = true) pageSize: Long
     ): ResponseEntity<SimpleResponse<List<FindMenuListVo>>> {
         val data = menuService.listMenu(tagName, menuId, orderBy, pageSize)
         return ResponseEntity.ok(SimpleResponse.of(HttpStatus.OK, MessageCode.SELECT_OK, data))

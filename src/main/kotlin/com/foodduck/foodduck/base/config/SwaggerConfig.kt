@@ -6,10 +6,9 @@ import springfox.documentation.builders.ApiInfoBuilder
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
 import springfox.documentation.builders.RequestParameterBuilder
-import springfox.documentation.service.ApiInfo
-import springfox.documentation.service.ParameterType
-import springfox.documentation.service.RequestParameter
+import springfox.documentation.service.*
 import springfox.documentation.spi.DocumentationType
+import springfox.documentation.spi.service.contexts.SecurityContext
 import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.swagger2.annotations.EnableSwagger2
 
@@ -57,10 +56,26 @@ class SwaggerConfig {
             .consumes(consumeContentTypes())
             .produces(produceContentTypes())
             .apiInfo(apiInfo())
+            .securityContexts(listOf( securityContext()))
+            .securitySchemes(listOf( apiKey()))
             .select()
             .apis(RequestHandlerSelectors.any())
             .paths(PathSelectors.ant("/api/**"))
             .build()
     }
 
+    fun apiKey(): ApiKey {
+        return ApiKey("JWT", "AccessToken", "header")
+    }
+
+    fun defaultAuth(): List<SecurityReference> {
+        val authorizationScope = AuthorizationScope("global", "accessEverything")
+        val authorizationScopes = arrayOfNulls<AuthorizationScope>(1)
+        authorizationScopes[0] = authorizationScope
+        return listOf(SecurityReference("JWT", authorizationScopes))
+    }
+
+    fun securityContext(): SecurityContext {
+        return SecurityContext.builder().securityReferences(defaultAuth()).build()
+    }
 }
