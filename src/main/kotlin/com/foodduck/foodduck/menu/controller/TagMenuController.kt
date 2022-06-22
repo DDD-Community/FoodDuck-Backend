@@ -32,5 +32,4 @@ class TagMenuController(
         val data = menuService.listMenu(tagName, menuId, orderBy, pageSize)
         return ResponseEntity.ok(SimpleResponse.of(HttpStatus.OK, MessageCode.SELECT_OK, data))
     }
-
 }

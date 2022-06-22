@@ -119,6 +119,4 @@ class MenuController(
         menuService.deleteMyMenu(account, menuId)
         return ResponseEntity.ok(SimpleResponse.of(HttpStatus.OK, MessageCode.DELETE))
     }
-
-
 }

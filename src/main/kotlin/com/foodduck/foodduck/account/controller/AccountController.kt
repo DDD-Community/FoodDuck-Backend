@@ -108,5 +108,4 @@ class AccountController(
         accountService.changePassword(email, request)
         return ResponseEntity.ok(SimpleResponse.of(HttpStatus.OK, MessageCode.OK))
     }
-
 }
