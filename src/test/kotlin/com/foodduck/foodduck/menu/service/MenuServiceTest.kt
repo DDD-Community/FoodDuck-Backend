@@ -306,7 +306,7 @@ internal class MenuServiceTest {
         val menu = EntityFactory.menuTemplate(account)
         val view = DetailMenuVIewVo(1L,menu.title, menu.body, menu.url, menu.favorCount, account.nickname)
         every { menuRepository.findByIdAndDeleteIsFalse(menuId) }.returns(menu)
-        every { menuHistoryRepository.findByAccountAndMenuAndDeleteIsFalse(account, menu) }.returns(MenuHistory(menu = menu, account = account))
+        every { menuHistoryRepository.findMenuHistoryByAccountAndMenu(account, menu) }.returns(MenuHistory(menu = menu, account = account))
         every { tagMenuRepository.detailMenuView(menuId) }.returns(view)
         val result = menuService.detailMenu(account, menuId)
         assertThat(result).isEqualTo(view)
@@ -319,7 +319,7 @@ internal class MenuServiceTest {
         val menu = EntityFactory.menuTemplate(account)
         val view = DetailMenuVIewVo(1L,menu.title, menu.body, menu.url, menu.favorCount, account.nickname)
         every { menuRepository.findByIdAndDeleteIsFalse(menuId) }.returns(menu)
-        every { menuHistoryRepository.findByAccountAndMenuAndDeleteIsFalse(account, menu) }.returns(null)
+        every { menuHistoryRepository.findMenuHistoryByAccountAndMenu(account, menu) }.returns(null)
         every { menuHistoryRepository.save(any()) }.returnsArgument(0)
         every { tagMenuRepository.detailMenuView(menuId) }.returns(view)
         val result = menuService.detailMenu(account, menuId)
@@ -343,7 +343,7 @@ internal class MenuServiceTest {
         val other = EntityFactory.accountTemplate(id = 2L, nickname = "other")
         val menuId = 1L
         val menu = EntityFactory.menuTemplate(account = account)
-        val otherMenu = EntityFactory.menuTemplate(account = other, id = 2L)
+        EntityFactory.menuTemplate(account = other, id = 2L)
         val view = listOf<MenuAlbumListVo>(MenuAlbumListVo(menuId = menuId, url = menu.url))
         every { menuRepository.findMyMenuList(account, menuId, 3L) }.returns(view)
         val result = menuService.myMenu(account, menuId, 3L)
@@ -395,7 +395,7 @@ internal class MenuServiceTest {
         )
         val menuIds = menuList.map { it.id }.toList()
         val menuHistories = menuList.map { MenuHistory(menu = it, account = account) }.toList()
-        every { menuHistoryRepository.findByAccountAndMenu_IdInAndDeleteIsFalse(account, menuIds as List<Long>) }.returns(menuHistories)
+        every { menuHistoryRepository.findMenuHistoryListByAccountAndMenuIds(account, menuIds as List<Long>) }.returns(menuHistories)
         assertDoesNotThrow {
             menuService.deleteMyMenuHistory(account, MenuIdsDto(menuIds = menuIds as List<Long>))
             val count = menuHistories.count { it.delete }
@@ -416,7 +416,7 @@ internal class MenuServiceTest {
         menuList.last().remove()
         val menuIds = menuList.map { it.id }.toList()
         val menuHistories = menuList.filter { !it.delete }.map { MenuHistory(menu = it, account = account) }.toList()
-        every { menuHistoryRepository.findByAccountAndMenu_IdInAndDeleteIsFalse(account, menuIds as List<Long>) }.returns(menuHistories)
+        every { menuHistoryRepository.findMenuHistoryListByAccountAndMenuIds(account, menuIds as List<Long>) }.returns(menuHistories)
         assertThrows<CustomException> {
             menuService.deleteMyMenuHistory(account, MenuIdsDto(menuIds = menuIds as List<Long>))
         }
@@ -436,7 +436,7 @@ internal class MenuServiceTest {
             menu.remove()
         }
         val menuIds = menuList.map { it.id }.toList()
-        every { menuHistoryRepository.findByAccountAndMenu_IdInAndDeleteIsFalse(account, menuIds as List<Long>) } throws CustomException(ErrorCode.MENU_HISTORY_NOT_FOUND_ERROR)
+        every { menuHistoryRepository.findMenuHistoryListByAccountAndMenuIds(account, menuIds as List<Long>) } throws CustomException(ErrorCode.MENU_HISTORY_NOT_FOUND_ERROR)
         assertThrows<CustomException> {
             menuService.deleteMyMenuHistory(account, MenuIdsDto(menuIds = menuIds as List<Long>))
         }

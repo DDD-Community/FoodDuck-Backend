@@ -12,14 +12,22 @@ class EntityFactory {
             password = "Test12#$"
         )
 
-        fun accountTemplateForReal() = Account(
-            nickname="foodduck",
+        fun accountTemplateForReal(nickname: String = "foodduck") = Account(
+            nickname=nickname,
             email="foodduck@example.com",
             password="Test12#$"
         )
 
         fun menuTemplate(account: Account, favorCount: Long = 0L, id: Long = 1L) = Menu(
             id = id,
+            title = "나만의 조합",
+            body = "이겁니다",
+            account = account,
+            url = "image.png",
+            favorCount = favorCount
+        )
+
+        fun menuTemplateForReal(account: Account, favorCount: Long = 0L) = Menu(
             title = "나만의 조합",
             body = "이겁니다",
             account = account,
