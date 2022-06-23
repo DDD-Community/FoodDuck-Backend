@@ -77,7 +77,7 @@ class MenuService(
     private fun recordMenuHistory(account: Account?, menuId: Long) {
         if (account != null) {
             val menu = menuRepository.findByIdAndDeleteIsFalse(menuId) ?: throw CustomException(ErrorCode.MENU_NOT_FOUND_ERROR)
-            menuHistoryRepository.findByAccountAndMenuAndDeleteIsFalse(account, menu) ?: menuHistoryRepository.save(MenuHistory(menu = menu, account = account))
+            menuHistoryRepository.findMenuHistoryByAccountAndMenu(account, menu) ?: menuHistoryRepository.save(MenuHistory(menu = menu, account = account))
         }
     }
 
@@ -131,7 +131,7 @@ class MenuService(
 
     @Transactional
     fun deleteMyMenuHistory(account: Account, request: MenuIdsDto) {
-        val menuHistories = menuHistoryRepository.findByAccountAndMenu_IdInAndDeleteIsFalse(account, request.menuIds) ?: throw CustomException(ErrorCode.MENU_HISTORY_NOT_FOUND_ERROR)
+        val menuHistories = menuHistoryRepository.findMenuHistoryListByAccountAndMenuIds(account, request.menuIds) ?: throw CustomException(ErrorCode.MENU_HISTORY_NOT_FOUND_ERROR)
         if (request.menuIds.size != menuHistories.size) {
             throw CustomException(ErrorCode.MENU_HISTORY_NOT_FOUND_ERROR)
         }
