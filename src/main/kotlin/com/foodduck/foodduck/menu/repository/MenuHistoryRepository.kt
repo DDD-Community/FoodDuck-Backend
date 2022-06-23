@@ -13,7 +13,7 @@ interface MenuHistoryRepository:JpaRepository<MenuHistory, Long>, MenuHistoryVie
     @Query("select mh from MenuHistory mh join mh.menu where mh.delete = false and mh.menu.delete = false and mh.account = :account and mh.menu = :menu")
     fun findMenuHistoryByAccountAndMenu(@Param("account") account: Account, @Param("menu") menu: Menu): MenuHistory?
 
-    @Query("select mh from MenuHistory mh join mh.menu where mh.delete = false and mh.menu.delete = false and mh.account = :account and mh.menu.id in :menuIds")
+    @Query("select mh from MenuHistory mh join mh.menu where mh.delete = false and mh.menu.delete = false and mh.account = :account and mh.menu.id in :menuIds order by mh.menu.id asc ")
     fun findMenuHistoryListByAccountAndMenuIds(@Param("account") account: Account, @Param("menuIds") menuIds: List<Long>): List<MenuHistory>?
 
     @Modifying
