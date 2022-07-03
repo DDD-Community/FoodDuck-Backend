@@ -16,7 +16,7 @@ class MenuHistoryViewRepositoryImpl(
     override fun findMyMenuHistoryList(account: Account, menuId: Long?, pageSize: Long): List<MenuAlbumListVo> {
         return query
             .select(
-                Projections.constructor(MenuAlbumListVo::class.java, menuHistory.menu.id, menuHistory.menu.url)
+                Projections.constructor(MenuAlbumListVo::class.java, menuHistory.menu.id, menuHistory.menu.url, menuHistory.menu.createdAt)
             ).from(menuHistory)
             .join(menuHistory.menu, QMenu.menu)
             .where(menuHistory.delete.isFalse, menuHistory.menu.delete.isFalse, accountEq(account), ltLastMenuId(menuId))

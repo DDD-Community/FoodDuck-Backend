@@ -14,7 +14,7 @@ class MenuViewRepositoryImpl(
 
     override fun findMyMenuList(account: Account, menuId: Long?, pageSize: Long): List<MenuAlbumListVo> {
         return query
-            .select(Projections.constructor(MenuAlbumListVo::class.java, menu.id, menu.url))
+            .select(Projections.constructor(MenuAlbumListVo::class.java, menu.id, menu.url, menu.createdAt))
             .from(menu)
             .where(menu.delete.isFalse, ltMenuId(menuId))
             .limit(pageSize)

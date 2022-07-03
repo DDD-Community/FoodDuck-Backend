@@ -25,6 +25,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.springframework.mock.web.MockMultipartFile
 import java.io.FileInputStream
+import java.time.LocalDateTime
 import kotlin.streams.toList
 
 internal class MenuServiceTest {
@@ -114,7 +115,8 @@ internal class MenuServiceTest {
                 FindMenuListVo(
                     menuId = it, nickname = menu.account.nickname,
                     url = menu.url, title = menu.title,
-                    body = menu.body, count = menu.favorCount
+                    body = menu.body, count = menu.favorCount,
+                    createdAt = LocalDateTime.now()
                 )
             }?.let { view.add(it) }
         }
@@ -144,7 +146,8 @@ internal class MenuServiceTest {
                 FindMenuListVo(
                     menuId = it, nickname = menu.account.nickname,
                     url = menu.url, title = menu.title,
-                    body = menu.body, count = menu.favorCount
+                    body = menu.body, count = menu.favorCount,
+                    createdAt = LocalDateTime.now()
                 )
             }?.let { view.add(it) }
         }
@@ -174,7 +177,8 @@ internal class MenuServiceTest {
                 FindMenuListVo(
                     menuId = it, nickname = menu.account.nickname,
                     url = menu.url, title = menu.title,
-                    body = menu.body, count = menu.favorCount
+                    body = menu.body, count = menu.favorCount,
+                    createdAt = LocalDateTime.now()
                 )
             }
         }.limit(3).toList()
@@ -206,7 +210,8 @@ internal class MenuServiceTest {
                 FindMenuListVo(
                     menuId = it, nickname = menu.account.nickname,
                     url = menu.url, title = menu.title,
-                    body = menu.body, count = menu.favorCount
+                    body = menu.body, count = menu.favorCount,
+                    createdAt = LocalDateTime.now()
                 )
             }
         }.limit(3).toList()
@@ -239,7 +244,7 @@ internal class MenuServiceTest {
             .sorted { o1, o2 -> o1.id?.let { o2.id?.compareTo(it) } ?: 0 }
             .map {
                 it.id?.let {
-                        it1 -> FindFavorMenuListVo(menuId = it1, nickname = it.account.nickname, url = it.url, title = it.title, body = it.body, count = it.favorCount )
+                        it1 -> FindFavorMenuListVo(menuId = it1, nickname = it.account.nickname, url = it.url, title = it.title, body = it.body, count = it.favorCount , createdAt = it.createdAt)
                 }
         }.limit(3).toList()
         every { favorMenuRepository.findFavorMenuList(account, lastId, pageSize) }.returns(view)
@@ -259,7 +264,7 @@ internal class MenuServiceTest {
             EntityFactory.menuTemplate(account = account, id = 3L, favorCount = 15L),
         ).reversed()
         val stream = menuList.stream()
-        val view = stream.map { menu -> menu.id?.let { MenuAlbumListVo(menuId = it, url = menu.url) } }.toList()
+        val view = stream.map { menu -> menu.id?.let { MenuAlbumListVo(menuId = it, url = menu.url, createdAt = LocalDateTime.now()) } }.toList()
         every { menuHistoryRepository.findMyMenuHistoryList(account, null, pageSize) }.returns(view)
         val result = menuService.historyMenu(account, null, pageSize)
         assertThat(result).isEqualTo(view)
@@ -344,7 +349,7 @@ internal class MenuServiceTest {
         val menuId = 1L
         val menu = EntityFactory.menuTemplate(account = account)
         EntityFactory.menuTemplate(account = other, id = 2L)
-        val view = listOf<MenuAlbumListVo>(MenuAlbumListVo(menuId = menuId, url = menu.url))
+        val view = listOf<MenuAlbumListVo>(MenuAlbumListVo(menuId = menuId, url = menu.url, createdAt = LocalDateTime.now()))
         every { menuRepository.findMyMenuList(account, menuId, 3L) }.returns(view)
         val result = menuService.myMenu(account, menuId, 3L)
         assertThat(result.size).isEqualTo(1)

@@ -21,7 +21,8 @@ class TagMenuViewRepositoryImpl(
         val query = query.select(
             Projections.constructor(
                 FindMenuListVo::class.java,
-                tagMenu.menu.id, tagMenu.menu.account.nickname, tagMenu.menu.url, tagMenu.menu.title, tagMenu.menu.body, tagMenu.menu.favorCount
+                tagMenu.menu.id, tagMenu.menu.account.nickname, tagMenu.menu.url, tagMenu.menu.title, tagMenu.menu.body, tagMenu.menu.favorCount,
+                tagMenu.menu.createdAt
             )
         ).from(tagMenu)
             .join(tagMenu.menu, menu)

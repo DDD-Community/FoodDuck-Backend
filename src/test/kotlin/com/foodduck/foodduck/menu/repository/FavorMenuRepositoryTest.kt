@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceContext
 import kotlin.streams.toList
@@ -112,6 +113,7 @@ class FavorMenuRepositoryTest {
         assertThat(firstResult.title).isEqualTo(orderedMenus.first().title)
         assertThat(firstResult.body).isEqualTo(orderedMenus.first().body)
         assertThat(result.last().menuId).isEqualTo(orderedMenus[1].id)
+        assertThat(firstResult.createdAt).isNotNull
     }
 
     @Test

@@ -19,7 +19,9 @@ class FavorMenuViewRepositoryImpl(
             .select(
                 Projections.constructor(
                     FindFavorMenuListVo::class.java,
-                    favorMenu.menu.id, favorMenu.account.nickname, favorMenu.menu.url, favorMenu.menu.title, favorMenu.menu.body, favorMenu.menu.favorCount
+                    favorMenu.menu.id, favorMenu.account.nickname, favorMenu.menu.url,
+                    favorMenu.menu.title, favorMenu.menu.body, favorMenu.menu.favorCount,
+                    favorMenu.menu.createdAt
                 )
             ).from(favorMenu)
             .join(favorMenu.menu, menu)

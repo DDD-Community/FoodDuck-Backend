@@ -142,6 +142,7 @@ class MenuHistoryRepositoryTest {
         val result = menuHistoryRepository.findMyMenuHistoryList(account, menuIds[1], 2)
         assertThat(result.size).isEqualTo(2)
         assertThat(result[0].menuId).isEqualTo(skipMenuIds[0])
+        assertThat(result[0].createdAt).isNotNull
     }
 
     @Test
