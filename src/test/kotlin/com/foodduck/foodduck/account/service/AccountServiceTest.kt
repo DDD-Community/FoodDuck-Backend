@@ -1,10 +1,9 @@
 package com.foodduck.foodduck.account.service
 
-import com.foodduck.foodduck.account.dto.AccountChangePasswordRequest
-import com.foodduck.foodduck.account.dto.AccountLoginRequest
-import com.foodduck.foodduck.account.dto.AccountSignUpRequest
+import com.foodduck.foodduck.account.dto.*
 import com.foodduck.foodduck.account.model.Account
 import com.foodduck.foodduck.account.repository.AccountRepository
+import com.foodduck.foodduck.account.repository.ReasonRepository
 import com.foodduck.foodduck.base.config.security.jwt.JwtProvider
 import com.foodduck.foodduck.base.config.security.token.TokenDto
 import com.foodduck.foodduck.base.error.CustomException
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -47,6 +47,8 @@ internal class AccountServiceTest {
     @RelaxedMockK
     private lateinit var javaMailSender: JavaMailSender
 
+    @MockK
+    private lateinit var reasonRepository: ReasonRepository
 
     @BeforeEach
     fun setUp() {
@@ -54,7 +56,14 @@ internal class AccountServiceTest {
         mockkStatic(FoodDuckUtil::class)
         mockkObject(FoodDuckUtil)
         every { FoodDuckUtil.authenticationNumber() }.returns("12345")
-        accountService = AccountService(accountRepository, jwtProvider, passwordEncoder, redisTemplate, javaMailSender)
+        accountService = AccountService(
+            accountRepository,
+            jwtProvider,
+            passwordEncoder,
+            redisTemplate,
+            javaMailSender,
+            reasonRepository
+        )
     }
 
     @AfterEach
@@ -69,7 +78,8 @@ internal class AccountServiceTest {
         val password = "Test12#$"
         val encodePassword = "\$2a\$10\$Y2C2wVyIh5inOWStOe6sNOv4ggk50vOHsP6ZPDwW07YBGpW0i5WHO"
         val nickname = "foodduck"
-        val request = AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = "Test12#$")
+        val request =
+            AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = "Test12#$")
         val account = Account(email = email, password = encodePassword, nickname = nickname)
         val token = TokenDto("accessToken", "refreshToken")
 
@@ -88,7 +98,8 @@ internal class AccountServiceTest {
         val email = "foodduck@example"
         val password = "Test12#$"
         val nickname = "foodduck"
-        val request = AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = "Test12#$")
+        val request =
+            AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = "Test12#$")
 
         assertThrows(CustomException::class.java) {
             accountService.signUp(request)
@@ -101,7 +112,8 @@ internal class AccountServiceTest {
         val password = "Test12"
         val checkPassword = "Test12"
         val nickname = "foodduck"
-        val request = AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = checkPassword)
+        val request =
+            AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = checkPassword)
 
         every { accountRepository.existsByEmail(email) } returns false
 
@@ -116,7 +128,8 @@ internal class AccountServiceTest {
         val password = "Test12#$"
         val checkPassword = "Test12"
         val nickname = "foodduck"
-        val request = AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = checkPassword)
+        val request =
+            AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = checkPassword)
 
         every { accountRepository.existsByEmail(email) } returns false
 
@@ -131,7 +144,8 @@ internal class AccountServiceTest {
         val password = "Test12#$"
         val checkPassword = "Test12#$"
         val nickname = "foodduck"
-        val request = AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = checkPassword)
+        val request =
+            AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = checkPassword)
 
         every { accountRepository.existsByEmail(email) } returns false
         every { accountRepository.existsByNickname(nickname) } returns true
@@ -147,7 +161,8 @@ internal class AccountServiceTest {
         val password = "Test12#$"
         val checkPassword = "Test12#4"
         val nickname = "foodduck"
-        val request = AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = checkPassword)
+        val request =
+            AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = checkPassword)
 
         every { accountRepository.existsByEmail(email) } returns false
         every { accountRepository.existsByNickname(nickname) } returns true
@@ -248,7 +263,7 @@ internal class AccountServiceTest {
         ReflectionTestUtils.setField(accountService, "sendFrom", "foodduck@duck.co.kr")
 
         val email = "foodduck@example.com"
-        val key = PrefixType.TEMP_PASSWORD.prefix+email
+        val key = PrefixType.TEMP_PASSWORD.prefix + email
         val number = "12345"
 
         val simpleMailMessage = SimpleMailMessage()
@@ -262,7 +277,7 @@ internal class AccountServiceTest {
         every { redisTemplate.opsForValue().set(key, number) }.returnsArgument(0)
         every { redisTemplate.expire(key, Duration.ofMinutes(FoodDuckUtil.AUTHENTICATE_DURATION_MINUTE)) }.returns(true)
 
-        assertDoesNotThrow{
+        assertDoesNotThrow {
             accountService.sendTempAuthenticateNumber(email)
         }
     }
@@ -277,7 +292,7 @@ internal class AccountServiceTest {
 
         every { jwtProvider.logout(request, email) }.returnsArgument(0)
 
-        assertDoesNotThrow{
+        assertDoesNotThrow {
             accountService.logout(account, request)
         }
     }
@@ -320,7 +335,7 @@ internal class AccountServiceTest {
         every { accountRepository.findByEmail(email) }.returns(account)
         every { passwordEncoder.encode(password) }.returns(encodePassword)
 
-        assertDoesNotThrow{
+        assertDoesNotThrow {
             accountService.changePassword(email, request)
         }
     }
@@ -378,10 +393,32 @@ internal class AccountServiceTest {
         val encodePassword = "\$2a\$10\$Y2C2wVyIh5inOWStOe6sNOv4ggk50vOHsP6ZPDwW07YBGpW0i5WHO"
         val nickname = "foodduck"
         val account = Account(email = email, password = encodePassword, nickname = nickname)
-
+        val request = SignOutRequest(reason = "simple")
+        every { reasonRepository.save(any()) }.returnsArgument(0)
         assertDoesNotThrow {
-            accountService.signOut(account)
+            accountService.signOut(account, request)
         }
     }
+
+    @Test
+    fun `로그인 후 비밀번호 변경`() {
+        val email = "fodduck@example.com"
+        val password = "Test12#$"
+        val encodePassword = "\$2a\$10\$Y2C2wVyIh5inOWStOe6sNOv4ggk50vOHsP6ZPDwW07YBGpW0i5WHO"
+        val nickname = "foodduck"
+        val account = Account(id = 1L, email = email, password = encodePassword, nickname = nickname)
+        val changePassword = "myPass12#$"
+        val changePassword2 = "myPass12#$"
+        val request = LoginAccountChangePasswordRequest(password, changePassword, changePassword2)
+
+        every { passwordEncoder.matches(password, encodePassword) }.returns(true)
+        every { accountRepository.findByIdOrNull(account.id) }.returns(account)
+        every { passwordEncoder.encode(changePassword) }.returnsArgument(0)
+
+        assertDoesNotThrow {
+            accountService.loginChangePassword(account, request)
+        }
+    }
+
 
 }
