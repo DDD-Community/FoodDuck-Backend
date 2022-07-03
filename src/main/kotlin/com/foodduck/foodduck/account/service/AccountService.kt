@@ -1,10 +1,11 @@
 package com.foodduck.foodduck.account.service
 
-import com.foodduck.foodduck.account.dto.AccountChangePasswordRequest
-import com.foodduck.foodduck.account.dto.AccountLoginRequest
-import com.foodduck.foodduck.account.dto.AccountSignUpRequest
+import com.foodduck.foodduck.account.dto.*
 import com.foodduck.foodduck.account.model.Account
+import com.foodduck.foodduck.account.model.Reason
 import com.foodduck.foodduck.account.repository.AccountRepository
+import com.foodduck.foodduck.account.repository.ReasonRepository
+import com.foodduck.foodduck.account.vo.FindMyInfo
 import com.foodduck.foodduck.base.config.security.jwt.JwtProvider
 import com.foodduck.foodduck.base.config.security.token.TokenDto
 import com.foodduck.foodduck.base.error.CustomException
@@ -15,6 +16,7 @@ import com.foodduck.foodduck.base.util.FoodDuckUtil
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.core.ValueOperations
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -31,7 +33,8 @@ class AccountService(
     private val jwtProvider: JwtProvider,
     private val passwordEncoder: PasswordEncoder,
     private val redisTemplate: RedisTemplate<String, String>,
-    private val javaMailSender: JavaMailSender
+    private val javaMailSender: JavaMailSender,
+    private val reasonRepository: ReasonRepository
 ) {
 
     @Value("\${spring.mail.username}")
@@ -56,7 +59,8 @@ class AccountService(
         return makeToken(request.email)
     }
 
-    fun signOut(account: Account) {
+    fun signOut(account: Account, request: SignOutRequest) {
+        reasonRepository.save(Reason(reason = request.reason, account = account))
         account.delete = true
     }
 
@@ -148,6 +152,28 @@ class AccountService(
         validateChangePassword(request)
         val account: Account = accountRepository.findByEmail(email) ?: throw CustomException(ErrorCode.USER_NOT_FOUND_ERROR)
         account.changePassword(passwordEncoder.encode(request.password))
+    }
+
+    fun loginChangePassword(account: Account, request: LoginAccountChangePasswordRequest) {
+        validateLoginChangePassword(request, account)
+        val findAccount: Account = accountRepository.findByIdOrNull(account.id) ?: throw CustomException(ErrorCode.USER_NOT_FOUND_ERROR)
+        findAccount.changePassword(passwordEncoder.encode(request.password))
+    }
+
+    fun getMyInfo(account: Account): FindMyInfo {
+        return accountRepository.findMyInfo(account) ?: FindMyInfo(account.nickname, 0, 0)
+    }
+
+    private fun validateLoginChangePassword(
+        request: LoginAccountChangePasswordRequest,
+        account: Account
+    ) {
+        if (!passwordEncoder.matches(request.beforePassword, account.password)) {
+            throw CustomException(ErrorCode.WRONG_PASSWORD_ERROR)
+        }
+        validatePassword(request.password)
+        validatePassword(request.checkPassword)
+        request.validateEqualPassword()
     }
 
     private fun validateChangePassword(request: AccountChangePasswordRequest) {

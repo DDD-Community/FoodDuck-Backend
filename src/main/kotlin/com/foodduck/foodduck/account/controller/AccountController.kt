@@ -1,11 +1,10 @@
 package com.foodduck.foodduck.account.controller
 
-import com.foodduck.foodduck.account.dto.AccountChangePasswordRequest
-import com.foodduck.foodduck.account.dto.AccountLoginRequest
-import com.foodduck.foodduck.account.dto.AccountSignUpRequest
+import com.foodduck.foodduck.account.dto.*
 import com.foodduck.foodduck.account.model.Account
 import com.foodduck.foodduck.account.model.AuthAccount
 import com.foodduck.foodduck.account.service.AccountService
+import com.foodduck.foodduck.account.vo.FindMyInfo
 import com.foodduck.foodduck.base.config.security.token.TokenDto
 import com.foodduck.foodduck.base.message.MessageCode
 import com.foodduck.foodduck.base.message.response.SimpleResponse
@@ -36,9 +35,10 @@ class AccountController(
     @ApiOperation(value = "회원탈퇴")
     @DeleteMapping("/sign-out")
     fun signOut(
-        @AuthAccount @ApiParam(hidden = true) account: Account
+        @AuthAccount @ApiParam(hidden = true) account: Account,
+        @RequestBody @ApiParam(value = "사유") request: SignOutRequest
     ): ResponseEntity<SimpleResponse<Unit>> {
-        accountService.signOut(account)
+        accountService.signOut(account, request)
         return ResponseEntity.ok(SimpleResponse.of(HttpStatus.OK, MessageCode.SIGN_OUT))
     }
 
@@ -107,5 +107,24 @@ class AccountController(
     ): ResponseEntity<SimpleResponse<Unit>> {
         accountService.changePassword(email, request)
         return ResponseEntity.ok(SimpleResponse.of(HttpStatus.OK, MessageCode.OK))
+    }
+
+    @ApiOperation(value = "로그인 후 비밀번호 바꾸기")
+    @PatchMapping("/my/password")
+    fun loginChangePassword(
+        @AuthAccount @ApiParam(hidden = true) account: Account,
+        @RequestBody @ApiParam(value = "비밀번호들", required = true) request: LoginAccountChangePasswordRequest
+    ): ResponseEntity<SimpleResponse<Unit>> {
+        accountService.loginChangePassword(account, request)
+        return ResponseEntity.ok(SimpleResponse.of(HttpStatus.OK, MessageCode.OK))
+    }
+
+    @ApiOperation(value = "내 정보 가져오기")
+    @GetMapping("/my")
+    fun getMyInfo(
+        @AuthAccount @ApiParam(hidden = true) account: Account
+    ): ResponseEntity<SimpleResponse<FindMyInfo>> {
+        val data = accountService.getMyInfo(account)
+        return ResponseEntity.ok(SimpleResponse.of(HttpStatus.OK, MessageCode.SELECT_OK, data))
     }
 }
