@@ -20,5 +20,6 @@ enum class ErrorCode(
     WRONG_PASSWORD_ERROR(HttpStatus.BAD_REQUEST, "A011", "잘못된 비밀번호 입니다."),
     MENU_NOT_FOUND_ERROR(HttpStatus.BAD_REQUEST, "B001", "존재하지 않는 메뉴 입니다."),
     MENU_HISTORY_NOT_FOUND_ERROR(HttpStatus.BAD_REQUEST, "B002", "존재하지 않는 메뉴 기록 입니다."),
-    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "파일을 찾을 수 없습니다.")
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "파일을 찾을 수 없습니다."),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "D01", "댓글을 찾을 수 없습니다.")
 }

@@ -1,6 +1,7 @@
 package com.foodduck.foodduck.base.config.domain
 
 import com.foodduck.foodduck.account.model.Account
+import com.foodduck.foodduck.menu.model.Comment
 import com.foodduck.foodduck.menu.model.Menu
 
 class EntityFactory {
@@ -33,6 +34,21 @@ class EntityFactory {
             account = account,
             url = "image.png",
             favorCount = favorCount
+        )
+
+        fun commentTemplate(account: Account, menu: Menu, parentComment: Comment?, id: Long = 1L) = Comment(
+            id = id,
+            account = account,
+            menu = menu,
+            parent = parentComment,
+            body = "맛있겠다."
+        )
+
+        fun commentTemplateForReal(account: Account, menu: Menu, parentComment: Comment?, body: String = "맛있겠다.") = Comment(
+            account = account,
+            menu = menu,
+            parent = parentComment,
+            body = body
         )
     }
 }

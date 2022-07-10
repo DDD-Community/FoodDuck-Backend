@@ -30,7 +30,8 @@ class WebSecurityConfig(
                 "/api/v1/tag-menus/**",
                 "/api/v1/menus/{\\d+}",
                 "/swagger*/**",
-                "/v2/api-docs*/**"
+                "/v2/api-docs*/**",
+                "/api/v1/comments/**"
             )?.permitAll()
             ?.anyRequest()?.authenticated()?.and()
             ?.addFilterBefore(JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter::class.java)
