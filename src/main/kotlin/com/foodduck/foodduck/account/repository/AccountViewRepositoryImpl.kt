@@ -10,7 +10,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 class AccountViewRepositoryImpl(private val query: JPAQueryFactory): AccountViewRepository {
     override fun findMyInfo(account: Account): FindMyInfo? {
         return query.select(
-            Projections.constructor(FindMyInfo::class.java, menu.account.nickname, menu.favorCount.sum(), menu.count())
+            Projections.constructor(FindMyInfo::class.java, menu.account.nickname, menu.favorCount.sum(), menu.count(), menu.account.profile)
         ).from(menu)
             .join(menu.account, QAccount.account)
             .where(menu.account.eq(account), menu.delete.isFalse)

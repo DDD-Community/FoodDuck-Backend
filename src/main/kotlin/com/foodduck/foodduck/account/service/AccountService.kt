@@ -6,10 +6,12 @@ import com.foodduck.foodduck.account.model.Reason
 import com.foodduck.foodduck.account.repository.AccountRepository
 import com.foodduck.foodduck.account.repository.ReasonRepository
 import com.foodduck.foodduck.account.vo.FindMyInfo
+import com.foodduck.foodduck.base.config.S3Uploader
 import com.foodduck.foodduck.base.config.security.jwt.JwtProvider
 import com.foodduck.foodduck.base.config.security.token.TokenDto
 import com.foodduck.foodduck.base.error.CustomException
 import com.foodduck.foodduck.base.error.ErrorCode
+import com.foodduck.foodduck.base.message.ACCOUNT_PROFILE_DIR_NAME
 import com.foodduck.foodduck.base.message.PrefixType
 import com.foodduck.foodduck.base.util.RegexUtil
 import com.foodduck.foodduck.base.util.FoodDuckUtil
@@ -22,6 +24,7 @@ import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 import java.time.Duration
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -34,7 +37,8 @@ class AccountService(
     private val passwordEncoder: PasswordEncoder,
     private val redisTemplate: RedisTemplate<String, String>,
     private val javaMailSender: JavaMailSender,
-    private val reasonRepository: ReasonRepository
+    private val reasonRepository: ReasonRepository,
+    private val s3Uploader: S3Uploader
 ) {
 
     @Value("\${spring.mail.username}")
@@ -161,7 +165,13 @@ class AccountService(
     }
 
     fun getMyInfo(account: Account): FindMyInfo {
-        return accountRepository.findMyInfo(account) ?: FindMyInfo(account.nickname, 0, 0)
+        return accountRepository.findMyInfo(account) ?: FindMyInfo(account.nickname, 0, 0, "")
+    }
+
+    fun updateProfile(account: Account, image: MultipartFile) {
+        val findAccount = accountRepository.findByIdOrNull(id = account.id) ?: throw CustomException(ErrorCode.USER_NOT_FOUND_ERROR)
+        val url = s3Uploader.upload(image, ACCOUNT_PROFILE_DIR_NAME)
+        findAccount.profile = url
     }
 
     private fun validateLoginChangePassword(

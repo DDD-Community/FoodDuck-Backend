@@ -72,7 +72,7 @@ class AccountRepositoryTest {
 
     @Test
     fun `내 정보 조회 좋아요 받은 갯수 및 게시물 쓴 갯수`() {
-        val account = EntityFactory.accountTemplateForReal()
+        val account = EntityFactory.accountTemplateForReal(profile = "test.png")
         val menus = listOf(
             EntityFactory.menuTemplateForReal(account = account, favorCount = 1L),
             EntityFactory.menuTemplateForReal(account = account, favorCount = 2L),
@@ -88,6 +88,7 @@ class AccountRepositoryTest {
         assertThat(findMyInfo!!.nickname).isEqualTo(findAccount.nickname)
         assertThat(findMyInfo.myFavorCount).isEqualTo(6L)
         assertThat(findMyInfo.myMenuCount).isEqualTo(4L)
+        assertThat(findMyInfo.profile).isEqualTo("test.png")
     }
 
 }

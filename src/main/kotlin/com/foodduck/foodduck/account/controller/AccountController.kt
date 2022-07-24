@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiParam
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import javax.servlet.http.HttpServletRequest
 
 @RestController
@@ -126,5 +127,15 @@ class AccountController(
     ): ResponseEntity<SimpleResponse<FindMyInfo>> {
         val data = accountService.getMyInfo(account)
         return ResponseEntity.ok(SimpleResponse.of(HttpStatus.OK, MessageCode.SELECT_OK, data))
+    }
+
+    @ApiOperation(value = "프로필 이미지 갱신")
+    @PatchMapping("/profile")
+    fun updateProfile(
+        @AuthAccount @ApiParam(hidden = true) account: Account,
+        @ApiParam(value = "프로필 이미지") image: MultipartFile
+    ): ResponseEntity<SimpleResponse<Unit>> {
+        accountService.updateProfile(account, image)
+        return ResponseEntity.ok(SimpleResponse.of(HttpStatus.OK, MessageCode.OK))
     }
 }

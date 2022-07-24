@@ -6,17 +6,19 @@ import com.foodduck.foodduck.menu.model.Menu
 
 class EntityFactory {
     companion object {
-        fun accountTemplate(id: Long = 1L, nickname: String = "foodduck") = Account(
+        fun accountTemplate(id: Long = 1L, nickname: String = "foodduck", profile: String = "") = Account(
             id= id,
             nickname=nickname,
             email="foodduck@example.com",
-            password = "Test12#$"
+            password = "Test12#$",
+            profile = profile
         )
 
-        fun accountTemplateForReal(nickname: String = "foodduck") = Account(
+        fun accountTemplateForReal(nickname: String = "foodduck", profile: String = "") = Account(
             nickname=nickname,
             email="foodduck@example.com",
-            password="Test12#$"
+            password="Test12#$",
+            profile = profile
         )
 
         fun menuTemplate(account: Account, favorCount: Long = 0L, id: Long = 1L) = Menu(

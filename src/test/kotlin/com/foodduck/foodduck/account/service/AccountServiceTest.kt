@@ -4,10 +4,13 @@ import com.foodduck.foodduck.account.dto.*
 import com.foodduck.foodduck.account.model.Account
 import com.foodduck.foodduck.account.repository.AccountRepository
 import com.foodduck.foodduck.account.repository.ReasonRepository
+import com.foodduck.foodduck.base.config.S3Uploader
+import com.foodduck.foodduck.base.config.domain.EntityFactory
 import com.foodduck.foodduck.base.config.security.jwt.JwtProvider
 import com.foodduck.foodduck.base.config.security.token.TokenDto
 import com.foodduck.foodduck.base.error.CustomException
 import com.foodduck.foodduck.base.error.ErrorCode
+import com.foodduck.foodduck.base.message.ACCOUNT_PROFILE_DIR_NAME
 import com.foodduck.foodduck.base.message.PrefixType
 import com.foodduck.foodduck.base.util.FoodDuckUtil
 import io.mockk.*
@@ -22,8 +25,10 @@ import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.util.ReflectionTestUtils
+import java.io.FileInputStream
 import java.time.Duration
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -50,6 +55,9 @@ internal class AccountServiceTest {
     @MockK
     private lateinit var reasonRepository: ReasonRepository
 
+    @MockK
+    private lateinit var s3Uploader: S3Uploader
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
@@ -62,7 +70,8 @@ internal class AccountServiceTest {
             passwordEncoder,
             redisTemplate,
             javaMailSender,
-            reasonRepository
+            reasonRepository,
+            s3Uploader
         )
     }
 
@@ -80,7 +89,7 @@ internal class AccountServiceTest {
         val nickname = "foodduck"
         val request =
             AccountSignUpRequest(email = email, nickname = nickname, password = password, checkPassword = "Test12#$")
-        val account = Account(email = email, password = encodePassword, nickname = nickname)
+        val account = Account(email = email, password = encodePassword, nickname = nickname, profile = "")
         val token = TokenDto("accessToken", "refreshToken")
 
         every { accountRepository.existsByEmail(email) } returns false
@@ -201,7 +210,7 @@ internal class AccountServiceTest {
         val nickname = "foodduck"
         val encodePassword = "\$2a\$10\$Y2C2wVyIh5inOWStOe6sNOv4ggk50vOHsP6ZPDwW07YBGpW0i5WHO"
         val request = AccountLoginRequest(email = email, password = password)
-        val account = Account(email = email, password = encodePassword, nickname = nickname)
+        val account = Account(email = email, password = encodePassword, nickname = nickname, profile = "")
         val token = TokenDto("accessToken", "refreshToken")
 
 
@@ -234,7 +243,7 @@ internal class AccountServiceTest {
         val nickname = "foodduck"
         val encodePassword = "\$2a\$10\$Y2C2wVyIh5inOWStOe6sNOv4ggk50vOHsP6ZPDwW07YBGpW0i5WHO"
         val request = AccountLoginRequest(email = email, password = password)
-        val account = Account(email = email, password = encodePassword, nickname = nickname)
+        val account = Account(email = email, password = encodePassword, nickname = nickname, profile = "")
 
 
         every { accountRepository.findByEmail(email) } returns account
@@ -287,7 +296,7 @@ internal class AccountServiceTest {
         val email = "foodduck@example.com"
         val encodePassword = "\$2a\$10\$Y2C2wVyIh5inOWStOe6sNOv4ggk50vOHsP6ZPDwW07YBGpW0i5WHO"
         val nickname = "foodduck"
-        val account = Account(email = email, password = encodePassword, nickname = nickname)
+        val account = Account(email = email, password = encodePassword, nickname = nickname, profile = "")
         val request = mockk<HttpServletRequest>()
 
         every { jwtProvider.logout(request, email) }.returnsArgument(0)
@@ -329,7 +338,7 @@ internal class AccountServiceTest {
         val checkPassword = "Test12#$"
         val encodePassword = "\$2a\$10\$Y2C2wVyIh5inOWStOe6sNOv4ggk50vOHsP6ZPDwW07YBGpW0i5WHO"
         val nickname = "foodduck"
-        val account = Account(email = email, password = encodePassword, nickname = nickname)
+        val account = Account(email = email, password = encodePassword, nickname = nickname, profile = "")
         val request = AccountChangePasswordRequest(password = password, checkPassword = checkPassword)
 
         every { accountRepository.findByEmail(email) }.returns(account)
@@ -392,7 +401,7 @@ internal class AccountServiceTest {
         val email = "fodduck@example.com"
         val encodePassword = "\$2a\$10\$Y2C2wVyIh5inOWStOe6sNOv4ggk50vOHsP6ZPDwW07YBGpW0i5WHO"
         val nickname = "foodduck"
-        val account = Account(email = email, password = encodePassword, nickname = nickname)
+        val account = Account(email = email, password = encodePassword, nickname = nickname, profile = "")
         val request = SignOutRequest(reason = "simple")
         every { reasonRepository.save(any()) }.returnsArgument(0)
         assertDoesNotThrow {
@@ -406,7 +415,7 @@ internal class AccountServiceTest {
         val password = "Test12#$"
         val encodePassword = "\$2a\$10\$Y2C2wVyIh5inOWStOe6sNOv4ggk50vOHsP6ZPDwW07YBGpW0i5WHO"
         val nickname = "foodduck"
-        val account = Account(id = 1L, email = email, password = encodePassword, nickname = nickname)
+        val account = Account(email = email, password = encodePassword, nickname = nickname, profile = "")
         val changePassword = "myPass12#$"
         val changePassword2 = "myPass12#$"
         val request = LoginAccountChangePasswordRequest(password, changePassword, changePassword2)
@@ -420,5 +429,18 @@ internal class AccountServiceTest {
         }
     }
 
+    @Test
+    fun `이미지 프로필 올리기`() {
+        val account = EntityFactory.accountTemplate()
+        val fis = FileInputStream("src/test/resources/static/test.png")
+        val image = MockMultipartFile("file", fis)
+        val imageUrl = ACCOUNT_PROFILE_DIR_NAME + "local" + "image.png"
+        every { accountRepository.findByIdOrNull(id=account.id) }.returns(account)
+        every { s3Uploader.upload(any(), any()) }.returns(imageUrl)
+        assertDoesNotThrow {
+            accountService.updateProfile(account, image)
+        }
+        assertThat(account.profile).isEqualTo(imageUrl)
+    }
 
 }

@@ -20,7 +20,7 @@ data class AccountSignUpRequest(
         }
     }
     fun toAccount(passwordEncoder: PasswordEncoder):Account {
-        return Account(nickname = nickname, email = email, password = passwordEncoder.encode(password))
+        return Account(nickname = nickname, email = email, password = passwordEncoder.encode(password), profile = "")
     }
 }
 

@@ -25,6 +25,10 @@ class Account(
     @ApiModelProperty(hidden = true)
     var password: String,
 
+    @Column(name = "PROFILE")
+    @ApiModelProperty(hidden = true)
+    var profile: String,
+
     @Column(name = "LAST_LOGIN")
     @ApiModelProperty(hidden = true)
     var lastLogin: LocalDateTime = LocalDateTime.now()

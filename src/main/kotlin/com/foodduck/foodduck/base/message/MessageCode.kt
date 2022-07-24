@@ -19,3 +19,4 @@ class MessageCode {
 }
 const val DEFAULT_TAG = "INIT_ALL"
 const val MENU_DIR_NAME = "static"
+const val ACCOUNT_PROFILE_DIR_NAME = "static/account"
